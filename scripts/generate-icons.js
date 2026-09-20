@@ -142,12 +142,73 @@ function drawAppIcon(isMaskable) {
   };
 }
 
+function createICO(pngBuffer, width = 32, height = 32) {
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // Reserved
+  header.writeUInt16LE(1, 2); // 1 = ICO
+  header.writeUInt16LE(1, 4); // Count = 1
+
+  const entry = Buffer.alloc(16);
+  entry.writeUInt8(width >= 256 ? 0 : width, 0);
+  entry.writeUInt8(height >= 256 ? 0 : height, 1);
+  entry.writeUInt8(0, 2); // Color count
+  entry.writeUInt8(0, 3); // Reserved
+  entry.writeUInt16LE(1, 4); // Color planes
+  entry.writeUInt16LE(32, 6); // Bits per pixel
+  entry.writeUInt32LE(pngBuffer.length, 8); // Size
+  entry.writeUInt32LE(22, 12); // Offset: 6 + 16 = 22
+
+  return Buffer.concat([header, entry, pngBuffer]);
+}
+
 if (!fs.existsSync('./public')) {
   fs.mkdirSync('./public', { recursive: true });
 }
 
+const faviconPNG = createPNG(32, 32, drawAppIcon(false));
+const appleTouchIconPNG = createPNG(180, 180, drawAppIcon(false));
+
+fs.writeFileSync('./public/favicon.ico', createICO(faviconPNG, 32, 32));
+fs.writeFileSync('./public/favicon.png', faviconPNG);
 fs.writeFileSync('./public/pwa-192x192.png', createPNG(192, 192, drawAppIcon(false)));
 fs.writeFileSync('./public/pwa-512x512.png', createPNG(512, 512, drawAppIcon(false)));
 fs.writeFileSync('./public/pwa-maskable-512x512.png', createPNG(512, 512, drawAppIcon(true)));
-fs.writeFileSync('./public/apple-touch-icon.png', createPNG(180, 180, drawAppIcon(false)));
-console.log('Successfully generated PWA icon assets!');
+fs.writeFileSync('./public/apple-touch-icon.png', appleTouchIconPNG);
+fs.writeFileSync('./public/apple-touch-icon-precomposed.png', appleTouchIconPNG);
+
+const manifest = {
+  id: '/',
+  name: 'احرص - منصة التفوق والالتزام',
+  short_name: 'احرص',
+  description: 'رفيقك الذكي للتفوق الدراسي والالتزام الروحي لطلاب الثانوية العامة المصرية',
+  theme_color: '#0F766E',
+  background_color: '#091419',
+  display: 'standalone',
+  start_url: '/',
+  scope: '/',
+  dir: 'rtl',
+  lang: 'ar',
+  icons: [
+    {
+      src: '/pwa-192x192.png',
+      sizes: '192x192',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: '/pwa-512x512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: '/pwa-maskable-512x512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'maskable',
+    },
+  ],
+};
+fs.writeFileSync('./public/manifest.json', JSON.stringify(manifest, null, 2));
+
+console.log('Successfully generated PWA icon assets, favicon.ico, and manifest.json!');

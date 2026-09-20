@@ -11,6 +11,18 @@ const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
+// Serve public directory static files (favicon.ico, manifest.json, PWA icons)
+const publicDir = path.join(process.cwd(), 'public');
+app.use(express.static(publicDir));
+
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(publicDir, 'favicon.ico'));
+});
+
+app.get('/manifest.json', (req, res) => {
+  res.sendFile(path.join(publicDir, 'manifest.json'));
+});
+
 // Lazy-initialized Gemini AI client
 let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI {
