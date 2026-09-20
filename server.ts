@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
@@ -11,16 +12,73 @@ const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
-// Serve public directory static files (favicon.ico, manifest.json, PWA icons)
+// Request monitor to trace any 404s or error status codes
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    if (res.statusCode === 404) {
+      console.warn(`[404 NOT FOUND] ${req.method} ${req.url}`);
+    }
+  });
+  next();
+});
+
+// Paths
 const publicDir = path.join(process.cwd(), 'public');
-app.use(express.static(publicDir));
+const distDir = path.join(process.cwd(), 'dist');
+
+// Serve static assets from public folder
+app.use(express.static(publicDir, { maxAge: '1h' }));
+
+// Serve compiled assets from dist/assets if they exist (for cached chunks)
+if (fs.existsSync(path.join(distDir, 'assets'))) {
+  app.use('/assets', express.static(path.join(distDir, 'assets')));
+}
+
+// Explicit PWA and Icon endpoints to guarantee 200 OK with correct MIME types
+app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+  res.sendFile(path.join(publicDir, 'manifest.json'));
+});
+
+app.get(['/sw.js', '/dev-sw.js'], (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.sendFile(path.join(publicDir, 'sw.js'));
+});
+
+app.get('/registerSW.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.sendFile(path.join(publicDir, 'registerSW.js'));
+});
 
 app.get('/favicon.ico', (req, res) => {
+  res.setHeader('Content-Type', 'image/x-icon');
   res.sendFile(path.join(publicDir, 'favicon.ico'));
 });
 
-app.get('/manifest.json', (req, res) => {
-  res.sendFile(path.join(publicDir, 'manifest.json'));
+app.get('/favicon.png', (req, res) => {
+  res.setHeader('Content-Type', 'image/png');
+  res.sendFile(path.join(publicDir, 'favicon.png'));
+});
+
+app.get(['/apple-touch-icon.png', '/apple-touch-icon-precomposed.png'], (req, res) => {
+  res.setHeader('Content-Type', 'image/png');
+  res.sendFile(path.join(publicDir, 'apple-touch-icon.png'));
+});
+
+app.get('/icon.svg', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.sendFile(path.join(publicDir, 'icon.svg'));
+});
+
+app.get('/pwa-192x192.png', (req, res) => {
+  res.setHeader('Content-Type', 'image/png');
+  res.sendFile(path.join(publicDir, 'pwa-192x192.png'));
+});
+
+app.get(['/pwa-512x512.png', '/pwa-maskable-512x512.png'], (req, res) => {
+  res.setHeader('Content-Type', 'image/png');
+  res.sendFile(path.join(publicDir, 'pwa-512x512.png'));
 });
 
 // Lazy-initialized Gemini AI client

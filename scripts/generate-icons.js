@@ -210,5 +210,29 @@ const manifest = {
   ],
 };
 fs.writeFileSync('./public/manifest.json', JSON.stringify(manifest, null, 2));
+fs.writeFileSync('./public/manifest.webmanifest', JSON.stringify(manifest, null, 2));
 
-console.log('Successfully generated PWA icon assets, favicon.ico, and manifest.json!');
+const swScript = `// Ehres Service Worker
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  // Pass-through in development / standard fallback
+});
+`;
+fs.writeFileSync('./public/sw.js', swScript);
+
+const registerSWScript = `if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+  });
+}
+`;
+fs.writeFileSync('./public/registerSW.js', registerSWScript);
+
+console.log('Successfully generated PWA icon assets, favicon.ico, manifest.json, manifest.webmanifest, sw.js, and registerSW.js!');
