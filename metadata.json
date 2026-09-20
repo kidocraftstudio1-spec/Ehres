@@ -1,0 +1,6 @@
+{
+  "name": "احرص - منصة التفوق والالتزام",
+  "description": "رفيقك الذكي للتفوق الدراسي والالتزام الروحي لطلاب الثانوية العامة المصرية",
+  "requestFramePermissions": ["geolocation", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

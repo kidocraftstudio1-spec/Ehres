@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  /* الزمردي - Brand Identity */
+  --primary: #0F766E;
+  --primary-light: #10B981;
+  --primary-dark: #064E3B;
+  --primary-container: #D1FAE5;
+
+  /* البترولي - Petroleum */
+  --secondary: #0E7490;
+  --secondary-dark: #083344;
+  --secondary-night: #0B1F28;
+  --secondary-surface: #112630;
+  --secondary-container: #CFFAFE;
+
+  /* الذهبي - Gold Accent (للشارات والمكافآت) */
+  --accent: #F59E0B;
+  --accent-light: #FBBF24;
+  --accent-dark: #B45309;
+  --accent-container: #FEF3C7;
+
+  /* الحالات - Status */
+  --success: #10B981;
+  --warning: #F97316;
+  --error: #EF4444;
+  --info: #06B6D4;
+  --purple-accent: #8B5CF6;
+
+  /* الوضع الفاتح - Light Mode Tokens */
+  --background: #F6FAF9;
+  --surface: #FFFFFF;
+  --surface-variant: #E6F2F0;
+  --outline: #CBD5E1;
+  --text-main: #0F172A;
+  --text-secondary: #475569;
+}
+
+.dark {
+  /* الوضع الليلي - يعتمد على البترولي الغامق وليس الأسود الصريح */
+  --background: #091419;
+  --surface: #0F222B;
+  --surface-variant: #162E3A;
+  --outline: #264757;
+  --text-main: #F1F5F9;
+  --text-secondary: #94A3B8;
+
+  /* Dark mode container adjustments aligned with petroleum & emerald */
+  --primary-container: #064E3B;
+  --secondary-container: #083344;
+  --accent-container: #451a03;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-container: var(--primary-container);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-secondary-night: var(--secondary-night);
+  --color-secondary-surface: var(--secondary-surface);
+  --color-secondary-container: var(--secondary-container);
+
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-container: var(--accent-container);
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-outline: var(--outline);
+  --color-text-main: var(--text-main);
+  --color-text-secondary: var(--text-secondary);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+  --color-purple-accent: var(--purple-accent);
+}
+
+@layer base {
+  html {
+    font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    background-color: var(--background);
+    color: var(--text-main);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+}
+
+/* Custom scrollbar styled with design tokens */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--outline);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
